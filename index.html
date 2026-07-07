@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التدرب على جدول الضرب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6E9;
+    --panel:#FFFFFF;
+    --panel-alt:#F1E9D2;
+    --ink:#1F2A26;
+    --ink-dim:#4B5A53;
+    --yellow:#C98A12;
+    --blue:#1D6E8E;
+    --lilac:#6A4FA8;
+    --coral:#C8401F;
+    --green-ok:#2E8B4F;
+    --line: rgba(31,42,38,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:var(--bg);
+    font-family:'Tajawal', sans-serif;
+    font-weight:500;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 60px;
+  }
+  #app{ width:100%; max-width:560px; }
+
+  .brand{ text-align:center; margin-bottom:18px; }
+  .brand h1{
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:2.05rem;
+    margin:0;
+    letter-spacing:.5px;
+    color:var(--ink);
+  }
+  .brand p{
+    margin:6px 0 0;
+    color:var(--ink-dim);
+    font-weight:700;
+    font-size:.88rem;
+  }
+
+  .stats-bar{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .stat-chip{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:8px 14px;
+    font-size:.85rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink);
+  }
+  .stat-chip b{ font-size:1.05rem; font-family:'Reem Kufi', sans-serif; font-weight:700; color:var(--ink); }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:20px;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px 4px;
+    border:2px solid var(--ink);
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    background:var(--panel);
+    font-size:.8rem;
+    color:var(--ink);
+  }
+  .tab.active{ background:var(--yellow); color:#FFFFFF; }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  .section-title{
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--ink);
+    margin:18px 0 10px;
+  }
+  .empty-note{ color:var(--ink-dim); font-weight:600; font-size:.85rem; text-align:center; padding:20px 10px; }
+
+  /* ---------- Home / level path ---------- */
+  .path-wrap{ position:relative; padding:10px 0 20px; }
+  .path-line{
+    position:absolute;
+    right:38px;
+    top:34px;
+    bottom:34px;
+    width:0;
+    border-right:3px dashed var(--line);
+  }
+  .level-row{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin:12px 0;
+    z-index:1;
+  }
+  .level-row.is-test{ margin:16px 0; }
+  .medallion{
+    flex:0 0 76px;
+    width:76px; height:76px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:1.5rem;
+    background:var(--panel);
+    border:4px solid var(--ink);
+    cursor:pointer;
+    position:relative;
+    transition:transform .15s ease;
+    flex-shrink:0;
+  }
+  .medallion:hover{ transform:scale(1.05); }
+  .medallion.c-yellow{ border-color:var(--yellow); color:var(--yellow); }
+  .medallion.c-blue{ border-color:var(--blue); color:var(--blue); }
+  .medallion.c-lilac{ border-color:var(--lilac); color:var(--lilac); }
+  .medallion.c-coral{ border-color:var(--coral); color:var(--coral); }
+  .medallion.is-test{ font-size:1.3rem; }
+  .medallion .badge-done{
+    position:absolute; top:-6px; left:-6px;
+    background:var(--green-ok);
+    color:#FFFFFF;
+    border-radius:50%;
+    width:24px; height:24px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.8rem;
+    font-weight:700;
+    border:2px solid var(--bg);
+  }
+  .level-info{ flex:1; }
+  .level-info h3{ margin:0 0 2px; font-family:'Reem Kufi', sans-serif; font-weight:700; font-size:1.08rem; color:var(--ink); }
+  .level-info span.range{ color:var(--ink-dim); font-weight:700; font-size:.83rem; }
+  .mistake-link{
+    display:inline-block;
+    margin-top:5px;
+    font-size:.8rem;
+    font-weight:700;
+    color:#FFFFFF;
+    background:var(--coral);
+    border-radius:10px;
+    padding:3px 10px;
+    cursor:pointer;
+  }
+
+  /* ---------- Stats dashboard ---------- */
+  .range-toggle{ display:flex; gap:8px; margin-bottom:14px; }
+  .range-btn{
+    flex:1;
+    padding:8px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:var(--panel);
+    color:var(--ink);
+    font-weight:800;
+    font-size:.85rem;
+    cursor:pointer;
+  }
+  .range-btn.active{ background:var(--blue); color:#FFFFFF; }
+  .chart-card{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:18px;
+    padding:16px 12px 6px;
+  }
+  .chart-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:6px;
+    height:150px;
+  }
+  .chart-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .chart-value{ font-weight:800; font-size:.72rem; margin-bottom:3px; color:var(--ink); }
+  .chart-bar{ width:65%; background:var(--yellow); border:2px solid var(--ink); border-radius:6px 6px 2px 2px; min-height:3px; }
+  .chart-label{ font-size:.68rem; font-weight:700; color:var(--ink-dim); margin-top:6px; text-align:center; }
+
+  .hard-list{ background:var(--panel); border:2px solid var(--ink); border-radius:18px; padding:14px 16px; }
+  .hard-row{ display:flex; align-items:center; gap:10px; margin:10px 0; }
+  .hard-label{ flex:0 0 90px; font-weight:700; font-size:.8rem; color:var(--ink); }
+  .hard-bar-track{ flex:1; background:var(--panel-alt); border-radius:8px; height:14px; overflow:hidden; }
+  .hard-bar-fill{ height:100%; background:var(--coral); border-radius:8px; }
+  .hard-pct{ flex:0 0 40px; text-align:left; font-weight:800; font-size:.8rem; color:var(--coral); }
+
+  /* ---------- Achievements ---------- */
+  .badges-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .badge-card{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:16px;
+    padding:14px 10px;
+    text-align:center;
+  }
+  .badge-card.locked{ opacity:.5; }
+  .badge-icon{ font-size:2rem; margin-bottom:6px; }
+  .badge-name{ font-family:'Reem Kufi', sans-serif; font-weight:700; font-size:.85rem; margin-bottom:4px; color:var(--ink); }
+  .badge-desc{ font-size:.72rem; font-weight:600; color:var(--ink-dim); }
+
+  .badge-toast{
+    position:fixed;
+    bottom:22px;
+    left:50%;
+    transform:translate(-50%, 20px);
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+    opacity:0;
+    transition:.3s ease;
+    z-index:80;
+    max-width:90vw;
+  }
+  .badge-toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .bt-icon{ font-size:1.9rem; }
+  .badge-toast b{ font-family:'Reem Kufi', sans-serif; font-size:.85rem; }
+
+  /* ---------- Game screen ---------- */
+  .game-card{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:22px;
+    padding:26px 20px;
+    text-align:center;
+  }
+  .game-progress{
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--ink-dim);
+    margin-bottom:10px;
+  }
+  .target-circle{
+    width:150px; height:150px;
+    border-radius:50%;
+    border:5px solid var(--yellow);
+    margin:0 auto 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:3.6rem;
+    color:var(--ink);
+    background:var(--panel-alt);
+  }
+  .hint{ color:var(--ink-dim); font-weight:700; font-size:.85rem; margin-bottom:16px; }
+  .options-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .opt-tile{
+    background:var(--panel-alt);
+    border:3px solid var(--ink);
+    border-radius:14px;
+    padding:16px 8px;
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:1.35rem;
+    color:var(--ink);
+    cursor:pointer;
+    transition:.12s ease;
+    user-select:none;
+  }
+  .opt-tile.selected{ border-color:var(--yellow); background:#FBEBC9; }
+  .opt-tile.reveal-correct{ border-color:var(--green-ok); background:#DEF3E3; color:var(--green-ok); }
+  .opt-tile.reveal-wrong{ border-color:var(--coral); background:#FBDFD6; color:var(--coral); }
+  .opt-tile.disabled{ cursor:default; }
+
+  .btn{
+    font-family:'Tajawal', sans-serif;
+    font-weight:800;
+    border:none;
+    border-radius:14px;
+    padding:12px 22px;
+    font-size:.95rem;
+    cursor:pointer;
+    transition:.12s ease;
+  }
+  .btn-primary{ background:var(--yellow); color:#FFFFFF; }
+  .btn-primary:disabled{ background:var(--panel-alt); color:var(--ink-dim); cursor:not-allowed; }
+  .btn-ghost{ background:var(--panel); border:2px solid var(--ink); color:var(--ink); }
+  .btn-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+  .feedback{
+    margin:10px 0 16px;
+    font-size:.98rem;
+    min-height:24px;
+    font-weight:800;
+  }
+  .feedback.ok{ color:var(--green-ok); }
+  .feedback.no{ color:var(--coral); }
+
+  .back-link{
+    display:block;
+    text-align:center;
+    margin-top:16px;
+    color:var(--ink-dim);
+    font-weight:700;
+    font-size:.85rem;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  /* ---------- Summary screen ---------- */
+  .summary-card{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:22px;
+    padding:30px 20px;
+    text-align:center;
+  }
+  .summary-card h2{ font-family:'Reem Kufi', sans-serif; font-weight:700; color:var(--ink); margin-top:0; }
+  .summary-grid{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin:18px 0 24px;
+    flex-wrap:wrap;
+  }
+  .summary-item{ min-width:80px; }
+  .summary-item b{ display:block; font-family:'Reem Kufi', sans-serif; font-weight:700; font-size:1.6rem; color:var(--ink); }
+  .summary-item span{ font-size:.8rem; font-weight:700; color:var(--ink-dim); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="brand">
+    <h1>🖍️ التدرب على جدول الضرب</h1>
+    <p>خمّن الضرب الصحيح لكل ناتج، وتقدّمك يُحفظ تلقائيًا على هذا الجهاز</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-chip">⭐ نقاطي: <b id="stat-points">0</b></div>
+    <div class="stat-chip">❌ أخطاء: <b id="stat-wrong">0</b></div>
+    <div class="stat-chip">🔥 أفضل سلسلة: <b id="stat-streak">0</b></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-home" onclick="switchTab('home')">🏠 المستويات</div>
+    <div class="tab" id="tab-stats" onclick="switchTab('stats')">📊 الإحصائيات</div>
+    <div class="tab" id="tab-achievements" onclick="switchTab('achievements')">🏅 الإنجازات</div>
+  </div>
+
+  <div id="screen-home" class="screen active"></div>
+  <div id="screen-stats" class="screen"></div>
+  <div id="screen-achievements" class="screen"></div>
+  <div id="screen-game" class="screen"></div>
+  <div id="screen-summary" class="screen"></div>
+</div>
+
+<script>
+/* ============ STORAGE ============ */
+const STORAGE_KEY = 'multTableGame_v1';
+function saveProgress(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      totalPoints, totalWrong, bestStreak, state, history, badgesUnlocked
+    }));
+  }catch(e){ /* storage unavailable (private mode, sandboxed preview, etc.) - continue in-memory */ }
+}
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(typeof data.totalPoints === 'number') totalPoints = data.totalPoints;
+    if(typeof data.totalWrong === 'number') totalWrong = data.totalWrong;
+    if(typeof data.bestStreak === 'number') bestStreak = data.bestStreak;
+    if(data.state){
+      Object.keys(data.state).forEach(id => { if(state[id]) state[id] = data.state[id]; });
+    }
+    if(Array.isArray(data.history)) history = data.history;
+    if(data.badgesUnlocked) badgesUnlocked = data.badgesUnlocked;
+  }catch(e){ /* ignore corrupt/unavailable storage */ }
+}
+
+/* ============ BUILD LEVEL / TEST SEQUENCE ============ */
+const BASE_RANGES = [
+  [1,9],[10,19],[20,29],[30,39],[40,49],
+  [50,59],[60,69],[70,79],[80,89],[90,99]
+];
+const LEVEL_COLORS = ['yellow','blue','lilac'];
+
+const LEVELS = [];
+let prevId = null;
+BASE_RANGES.forEach((range, idx) => {
+  const levelNum = idx + 1;
+  const levelId = 'l' + levelNum;
+  LEVELS.push({
+    id: levelId,
+    kind: 'level',
+    name: 'المستوى ' + levelNum,
+    range: range[0] + ' – ' + range[1],
+    ranges: [range],
+    unlockedBy: prevId,
+    color: LEVEL_COLORS[idx % LEVEL_COLORS.length],
+    icon: String(levelNum)
+  });
+  prevId = levelId;
+
+  if(idx >= 1){
+    const testNum = idx;
+    const testId = 't' + testNum;
+    const isFinal = (levelNum === BASE_RANGES.length);
+    LEVELS.push({
+      id: testId,
+      kind: 'test',
+      name: 'الاختبار ' + testNum + (isFinal ? ' (الأخير)' : ''),
+      range: '1 – ' + range[1],
+      ranges: BASE_RANGES.slice(0, idx + 1),
+      unlockedBy: prevId,
+      color: 'coral',
+      icon: String(testNum)
+    });
+    prevId = testId;
+  }
+});
+
+/* per-item progress state */
+const state = {};
+LEVELS.forEach(l => state[l.id] = { completed:false, mistakes:[] });
+
+let totalPoints = 0;
+let totalWrong = 0;
+let currentStreak = 0;
+let bestStreak = 0;
+let history = []; // {date:'YYYY-MM-DD', levelId, correct:bool}
+let badgesUnlocked = {}; // {badgeId: true}
+
+let session = null;
+let currentTab = 'home';
+let currentStatsRange = 'week';
+
+/* ============ BADGES ============ */
+const BADGES = [
+  { id:'pts100',  icon:'🥉', name:'100 نقطة',   desc:'اجمع 100 نقطة',                       check: () => totalPoints >= 100 },
+  { id:'pts500',  icon:'🥈', name:'500 نقطة',   desc:'اجمع 500 نقطة',                       check: () => totalPoints >= 500 },
+  { id:'pts1000', icon:'🥇', name:'1000 نقطة',  desc:'اجمع 1000 نقطة',                       check: () => totalPoints >= 1000 },
+  { id:'streak10',icon:'🔥', name:'سلسلة 10',   desc:'أجب عن 10 أسئلة صحيحة متتالية',          check: () => bestStreak >= 10 },
+  { id:'allLevels', icon:'✅', name:'كل المستويات', desc:'أكمل جميع المستويات العشرة',        check: () => LEVELS.filter(l=>l.kind==='level').every(l=>state[l.id].completed) },
+  { id:'allTests', icon:'🏆', name:'كل الاختبارات', desc:'أكمل جميع الاختبارات التسعة',        check: () => LEVELS.filter(l=>l.kind==='test').every(l=>state[l.id].completed) },
+  { id:'clean',   icon:'🧹', name:'لوح نظيف',    desc:'لا توجد أخطاء متبقية بعد إكمال مستوى', check: () => LEVELS.some(l=>state[l.id].completed) && LEVELS.every(l=>state[l.id].mistakes.length===0) },
+  { id:'master',  icon:'🌟', name:'إتقان تام',   desc:'أكمل كل المستويات والاختبارات دون أخطاء متبقية', check: () => LEVELS.every(l=>state[l.id].completed && state[l.id].mistakes.length===0) },
+];
+function checkBadges(){
+  const newlyUnlocked = [];
+  BADGES.forEach(b => {
+    if(!badgesUnlocked[b.id] && b.check()){
+      badgesUnlocked[b.id] = true;
+      newlyUnlocked.push(b);
+    }
+  });
+  if(newlyUnlocked.length){
+    saveProgress();
+    showBadgeToast(newlyUnlocked[0]);
+    if(currentTab === 'achievements') renderAchievements();
+  }
+}
+function showBadgeToast(badge){
+  const toast = document.createElement('div');
+  toast.className = 'badge-toast';
+  toast.innerHTML = `<span class="bt-icon">${badge.icon}</span><div><b>شارة جديدة!</b><br>${badge.name}</div>`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 3200);
+}
+
+/* ============ MATH HELPERS ============ */
+const MAX_FACTOR = 10;
+function isPrime(n){
+  if(n < 2) return false;
+  for(let i = 2; i*i <= n; i++){ if(n % i === 0) return false; }
+  return true;
+}
+function factorPairs(n){
+  const pairs = [];
+  for(let i = 2; i*i <= n; i++){
+    if(n % i === 0){
+      const j = n / i;
+      if(j > 1 && i <= MAX_FACTOR && j <= MAX_FACTOR) pairs.push([i, j]);
+    }
+  }
+  return pairs;
+}
+function poolFor(level){
+  const nums = [];
+  level.ranges.forEach(([lo, hi]) => {
+    for(let n = lo; n <= hi; n++){
+      if(n > 1 && !isPrime(n) && factorPairs(n).length > 0) nums.push(n);
+    }
+  });
+  return nums;
+}
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function generateOptions(target){
+  const correctPairs = factorPairs(target);
+  let options = correctPairs.map(p => ({ a:p[0], b:p[1], correct:true }));
+  function hasPair(a, b){
+    return options.some(o => (o.a===a && o.b===b) || (o.a===b && o.b===a));
+  }
+  let attempts = 0;
+  while(options.length < 4 && attempts < 300){
+    attempts++;
+    const a = 2 + Math.floor(Math.random()*(MAX_FACTOR-1));
+    const b = 2 + Math.floor(Math.random()*(MAX_FACTOR-1));
+    if(a*b === target) continue;
+    if(hasPair(a,b)) continue;
+    options.push({ a, b, correct:false });
+  }
+  options = options.map(o => {
+    if(Math.random() < 0.5) return { ...o, da:o.a, db:o.b };
+    return { ...o, da:o.b, db:o.a };
+  });
+  shuffle(options);
+  return options;
+}
+
+/* ============ STATS HELPERS ============ */
+function dayKey(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function computeWeeklyData(){
+  const weekdayNames = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+  const today = new Date();
+  const days = [];
+  for(let i = 6; i >= 0; i--){
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = dayKey(d);
+    const pts = history.filter(h => h.date === key && h.correct).length * 10;
+    days.push({ label: weekdayNames[d.getDay()], value: pts });
+  }
+  return days;
+}
+function computeMonthlyData(){
+  const bucketLabels = ['قبل 3 أسابيع','قبل أسبوعين','الأسبوع الماضي','هذا الأسبوع'];
+  const today = new Date();
+  const buckets = [];
+  for(let b = 3; b >= 0; b--){
+    const end = new Date(today); end.setDate(end.getDate() - (b*7));
+    const start = new Date(end); start.setDate(start.getDate() - 6);
+    const startKey = dayKey(start), endKey = dayKey(end);
+    const pts = history.filter(h => h.date >= startKey && h.date <= endKey && h.correct).length * 10;
+    buckets.push({ label: bucketLabels[3-b], value: pts });
+  }
+  return buckets;
+}
+function renderBarChart(dataPoints){
+  const max = Math.max(1, ...dataPoints.map(d => d.value));
+  return `<div class="chart-row">${dataPoints.map(d => `
+    <div class="chart-col">
+      <div class="chart-value">${d.value}</div>
+      <div class="chart-bar" style="height:${Math.max(3, Math.round((d.value/max)*120))}px"></div>
+      <div class="chart-label">${d.label}</div>
+    </div>`).join('')}</div>`;
+}
+function renderHardestLevels(){
+  const stats = {};
+  history.forEach(h => {
+    if(!stats[h.levelId]) stats[h.levelId] = { correct:0, wrong:0 };
+    if(h.correct) stats[h.levelId].correct++; else stats[h.levelId].wrong++;
+  });
+  let rows = Object.keys(stats).map(id => {
+    const lvl = LEVELS.find(l => l.id === id);
+    if(!lvl) return null;
+    const s = stats[id];
+    const total = s.correct + s.wrong;
+    return { name: lvl.name, wrong: s.wrong, total, rate: total ? s.wrong/total : 0 };
+  }).filter(Boolean).filter(r => r.total >= 3);
+
+  rows.sort((a,b) => b.rate - a.rate || b.wrong - a.wrong);
+  rows = rows.slice(0, 5);
+
+  if(rows.length === 0){
+    return `<p class="empty-note">أكمل بعض الأسئلة لتظهر لك أصعب المستويات هنا.</p>`;
+  }
+  return rows.map(r => `
+    <div class="hard-row">
+      <div class="hard-label">${r.name}</div>
+      <div class="hard-bar-track"><div class="hard-bar-fill" style="width:${Math.round(r.rate*100)}%"></div></div>
+      <div class="hard-pct">${Math.round(r.rate*100)}٪</div>
+    </div>`).join('');
+}
+
+/* ============ PROGRESS / NAVIGATION ============ */
+function nextItemAfter(id){
+  return LEVELS.find(l => l.unlockedBy === id);
+}
+function switchTab(tab){
+  currentTab = tab;
+  ['home','stats','achievements'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  if(tab === 'home') renderHome();
+  if(tab === 'stats') renderStats();
+  if(tab === 'achievements') renderAchievements();
+  showScreen(tab);
+}
+
+/* ============ RENDER: HOME ============ */
+function renderHome(){
+  const el = document.getElementById('screen-home');
+  let rows = LEVELS.map(level => {
+    const st = state[level.id];
+    const mistakesCount = st.mistakes.length;
+    const isTest = level.kind === 'test';
+    const medallionClasses = ['medallion', 'c-' + level.color];
+    if(isTest) medallionClasses.push('is-test');
+    const rowClasses = ['level-row'];
+    if(isTest) rowClasses.push('is-test');
+
+    return `
+      <div class="${rowClasses.join(' ')}">
+        <div class="${medallionClasses.join(' ')}" onclick="onLevelClick('${level.id}')">
+          ${st.completed ? '<div class="badge-done">✓</div>' : ''}
+          ${isTest ? '📝' : level.icon}
+        </div>
+        <div class="level-info">
+          <h3>${level.name}</h3>
+          <span class="range">النتائج من ${level.range}</span>
+          ${ mistakesCount > 0 ? `<div class="mistake-link" onclick="startLevel('${level.id}', true)">إعادة تدريب على الأخطاء (${mistakesCount})</div>` : '' }
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="path-wrap"><div class="path-line"></div>${rows}</div>`;
+}
+function onLevelClick(levelId){
+  startLevel(levelId, false);
+}
+
+/* ============ RENDER: STATS ============ */
+function renderStats(){
+  const el = document.getElementById('screen-stats');
+  const data = currentStatsRange === 'week' ? computeWeeklyData() : computeMonthlyData();
+  el.innerHTML = `
+    <div class="section-title">تقدّمك (النقاط المكتسبة)</div>
+    <div class="range-toggle">
+      <button class="range-btn ${currentStatsRange==='week'?'active':''}" onclick="switchStatsRange('week')">أسبوعي</button>
+      <button class="range-btn ${currentStatsRange==='month'?'active':''}" onclick="switchStatsRange('month')">شهري</button>
+    </div>
+    <div class="chart-card">${renderBarChart(data)}</div>
+    <div class="section-title">أصعب المستويات (نسبة الخطأ)</div>
+    <div class="hard-list">${renderHardestLevels()}</div>
+  `;
+}
+function switchStatsRange(range){
+  currentStatsRange = range;
+  renderStats();
+}
+
+/* ============ RENDER: ACHIEVEMENTS ============ */
+function renderAchievements(){
+  const el = document.getElementById('screen-achievements');
+  const unlockedCount = BADGES.filter(b => badgesUnlocked[b.id]).length;
+  const cards = BADGES.map(b => {
+    const unlocked = !!badgesUnlocked[b.id];
+    return `
+      <div class="badge-card ${unlocked ? 'unlocked' : 'locked'}">
+        <div class="badge-icon">${unlocked ? b.icon : '🔒'}</div>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-desc">${b.desc}</div>
+      </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="section-title">إنجازاتك (${unlockedCount} / ${BADGES.length})</div>
+    <div class="badges-grid">${cards}</div>
+  `;
+}
+
+/* ============ GAME FLOW ============ */
+function startLevel(levelId, retrain){
+  const level = LEVELS.find(l => l.id === levelId);
+  const pool = retrain ? [...state[levelId].mistakes] : poolFor(level);
+  if(pool.length === 0){ renderHome(); showScreen('home'); return; }
+  shuffle(pool);
+  session = {
+    levelId, isRetrain: retrain, queue: pool, index: 0,
+    correct: 0, wrong: 0, pointsEarned: 0,
+    currentTarget: null, currentOptions: null,
+    selected: new Set(), answered: false
+  };
+  nextQuestion();
+  showScreen('game');
+}
+function nextQuestion(){
+  if(session.index >= session.queue.length){
+    finishLevel();
+    return;
+  }
+  session.currentTarget = session.queue[session.index];
+  session.currentOptions = generateOptions(session.currentTarget);
+  session.selected = new Set();
+  session.answered = false;
+  renderGame();
+}
+function toggleOption(idx){
+  if(session.answered) return;
+  if(session.selected.has(idx)) session.selected.delete(idx);
+  else session.selected.add(idx);
+  renderGame();
+}
+function submitAnswer(){
+  if(session.answered || session.selected.size === 0) return;
+  session.answered = true;
+
+  const correctIdx = new Set(
+    session.currentOptions.map((o,i)=> o.correct ? i : null).filter(i => i !== null)
+  );
+  const isCorrect = correctIdx.size === session.selected.size &&
+                     [...correctIdx].every(i => session.selected.has(i));
+
+  const target = session.currentTarget;
+  const st = state[session.levelId];
+
+  if(isCorrect){
+    session.correct++;
+    session.pointsEarned += 10;
+    totalPoints += 10;
+    currentStreak++;
+    if(currentStreak > bestStreak) bestStreak = currentStreak;
+    st.mistakes = st.mistakes.filter(n => n !== target);
+  } else {
+    session.wrong++;
+    totalWrong++;
+    currentStreak = 0;
+    if(!st.mistakes.includes(target)) st.mistakes.push(target);
+  }
+
+  history.push({ date: dayKey(new Date()), levelId: session.levelId, correct: isCorrect });
+  if(history.length > 1000) history = history.slice(history.length - 1000);
+
+  updateStatsBar();
+  saveProgress();
+  checkBadges();
+  renderGame();
+}
+function finishLevel(){
+  if(!session.isRetrain){
+    state[session.levelId].completed = true;
+  }
+  saveProgress();
+  checkBadges();
+  renderSummary();
+  showScreen('summary');
+}
+
+/* ============ RENDER: GAME ============ */
+function renderGame(){
+  const el = document.getElementById('screen-game');
+  const total = session.queue.length;
+  const qNum = Math.min(session.index + 1, total);
+  const levelObj = LEVELS.find(l => l.id === session.levelId);
+
+  const tiles = session.currentOptions.map((o, i) => {
+    let cls = 'opt-tile';
+    if(session.selected.has(i) && !session.answered) cls += ' selected';
+    if(session.answered){
+      cls += ' disabled';
+      if(o.correct) cls += ' reveal-correct';
+      else if(session.selected.has(i)) cls += ' reveal-wrong';
+    }
+    return `<div class="${cls}" onclick="toggleOption(${i})">${o.da} × ${o.db}</div>`;
+  }).join('');
+
+  let feedback = '';
+  if(session.answered){
+    const correctIdx = session.currentOptions
+      .map((o,i)=> o.correct ? i : null).filter(i=>i!==null);
+    const correctSelected = correctIdx.length === session.selected.size &&
+      correctIdx.every(i => session.selected.has(i));
+    if(correctSelected){
+      feedback = `<div class="feedback ok">✅ صحيح! +10 نقاط</div>`;
+    } else {
+      const answers = session.currentOptions
+        .filter(o=>o.correct)
+        .map(o=>`${o.da} × ${o.db}`)
+        .join('   ،   ');
+      feedback = `<div class="feedback no">❌ خطأ — الإجابة الصحيحة: ${answers}</div>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div class="game-card">
+      <div class="game-progress">سؤال ${qNum} من ${total} — ${session.isRetrain ? 'تدريب على الأخطاء' : levelObj.name}</div>
+      <div class="target-circle">${session.currentTarget}</div>
+      <div class="hint">اختر كل عمليات الضرب التي تعطي هذا الناتج (قد يكون أكثر من إجابة صحيحة)</div>
+      <div class="options-grid">${tiles}</div>
+      ${feedback}
+      <div class="btn-row">
+        ${session.answered
+          ? `<button class="btn btn-primary" onclick="nextQuestionAdvance()">التالي ▶</button>`
+          : `<button class="btn btn-primary" onclick="submitAnswer()" ${session.selected.size===0?'disabled':''}>تأكيد الإجابة</button>`
+        }
+      </div>
+      <div class="back-link" onclick="confirmExit()">⟵ رجوع للقائمة الرئيسية</div>
+    </div>
+  `;
+}
+function nextQuestionAdvance(){
+  session.index++;
+  nextQuestion();
+}
+function confirmExit(){
+  switchTab('home');
+}
+
+/* ============ RENDER: SUMMARY ============ */
+function renderSummary(){
+  const el = document.getElementById('screen-summary');
+  const level = LEVELS.find(l => l.id === session.levelId);
+  const st = state[session.levelId];
+  const mistakesCount = st.mistakes.length;
+  const next = session.isRetrain ? null : nextItemAfter(session.levelId);
+
+  el.innerHTML = `
+    <div class="summary-card">
+      <h2>${session.isRetrain ? '🔁 انتهى التدريب على الأخطاء' : '🎉 أتممت ' + level.name}</h2>
+      <div class="summary-grid">
+        <div class="summary-item"><b>${session.correct}</b><span>إجابات صحيحة</span></div>
+        <div class="summary-item"><b>${session.wrong}</b><span>إجابات خاطئة</span></div>
+        <div class="summary-item"><b>+${session.pointsEarned}</b><span>نقاط في هذه الجولة</span></div>
+      </div>
+      <div class="btn-row">
+        ${mistakesCount > 0 ? `<button class="btn btn-ghost" onclick="startLevel('${session.levelId}', true)">إعادة تدريب على الأخطاء (${mistakesCount})</button>` : ''}
+        ${next ? `<button class="btn btn-primary" onclick="startLevel('${next.id}', false)">الاستمرار ← ${next.name} ▶</button>` : ''}
+      </div>
+      <div class="back-link" onclick="confirmExit()">⟵ رجوع للقائمة الرئيسية</div>
+    </div>
+  `;
+}
+
+/* ============ SCREEN SWITCH / STATS BAR ============ */
+function showScreen(name){
+  ['home','stats','achievements','game','summary'].forEach(n => {
+    document.getElementById('screen-' + n).classList.toggle('active', n === name);
+  });
+  const tabsEl = document.querySelector('.tabs');
+  tabsEl.style.display = (name === 'game' || name === 'summary') ? 'none' : 'flex';
+}
+function updateStatsBar(){
+  document.getElementById('stat-points').textContent = totalPoints;
+  document.getElementById('stat-wrong').textContent = totalWrong;
+  document.getElementById('stat-streak').textContent = bestStreak;
+}
+
+/* ============ INIT ============ */
+loadProgress();
+renderHome();
+updateStatsBar();
+</script>
+</body>
+</html>
